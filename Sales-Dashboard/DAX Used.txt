@@ -1,0 +1,92 @@
+DAX used: 
+Quantity Type =
+IF(
+    'Sales Data'[OrderQuantity] > 1,
+    "Multiple Items",
+    "Single"
+)
+
+Education Category =
+SWITCH(
+    'Customer Lookup'[EducationLevel],
+    "High School", "High School",
+    "Partial High School", "High School",
+    "Bachelors", "Undergrad",
+    "Partial College", "Undergrad",
+    "Graduate Degree", "Graduate"
+)
+
+January-> JAN
+Month Short =
+UPPER(
+    LEFT(
+        'Calendar Lookup'[Month Name], 
+        3
+    )
+)
+
+
+SKU Category =
+LEFT(
+    'Product Lookup'[ProductSKU],
+    SEARCH(
+        "-",
+        'Product Lookup'[ProductSKU]
+    )
+    -1
+)
+
+Bike Returns = 
+CALCULATE(
+    [Total Returns],
+    'Product Categories Lookup'[CategoryName]="Bikes"
+)
+
+
+CALCULATE(
+    [Total Orders],
+    FILTER(
+        'Product Lookup',
+        'Product Lookup'[ProductPrice] >   [Overall Average Price]
+    )
+)
+
+Total Revenue =
+SUMX(
+    'Sales Data',
+    'Sales Data'[Retail Price] * 
+    'Sales Data'[OrderQuantity]
+)
+
+
+YTD Revenue = 
+CALCULATE(
+    [Total Revenue],
+    DATESYTD(
+        'Calendar Lookup'[Date]
+    )
+)
+
+
+Previous Month Revenue = 
+CALCULATE(
+    [Total Revenue],
+    DATEADD( --> It is called DATEADD because the function literally adds or subtracts time intervals to dates.
+        'Calendar Lookup'[Date],
+        -1, -----> indicates it is 1 interval in the past
+        MONTH ---> indicates the interval
+    )
+)
+
+10-day Rolling Revenue = 
+CALCULATE(
+    [Total Revenue],
+    DATESINPERIOD(   -------------> This function creates a table of dates for a specific period.
+        'Calendar Lookup'[Date],
+        MAX(
+            'Calendar Lookup'[Date] --> the anchor date 
+        ),
+        -10,
+        DAY
+    )
+)
